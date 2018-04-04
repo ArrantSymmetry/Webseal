@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
+using System.Reflection;
 using System.Web;
 using LeadsManager.Models;
 using Webseal.Util;
 using Webseal.Util.StringManipulation;
+using Newtonsoft.Json;
 
 namespace Webseal
 {
@@ -18,11 +20,35 @@ namespace Webseal
             SessionUser._context = context;
         }
 
+        public static string ConvertToJson()
+        {
+            try
+            {
+                FieldInfo[] fields = typeof(SessionUser).GetFields(BindingFlags.Static | BindingFlags.Public);
+                object[,] a = new object[fields.Length, 2];
+                int i = 0;
+                foreach (FieldInfo field in fields)
+                {
+                    a[i, 0] = field.Name;
+                    a[i, 1] = field.GetValue(null);
+                    i++;
+                };
+                
+                return JsonConvert.SerializeObject(a);
+               
+            }
+            catch
+            {
+                return null;
+                //log err
+            }
+        }
+
         public static string UserName
         {
             get
             {
-                if (_context.Session["USER_NAME"].ToString() == "")
+                if (_context.Session["USER_NAME"] is null)
                     return null;
                 else
                     return _context.Session["USER_NAME"].ToString();
@@ -46,7 +72,7 @@ namespace Webseal
         {
             get
             {
-                if (_context.Session["MUD_USERID"].ToString() == "")
+                if (_context.Session["MUD_USERID"] is null)
                     return null;
                 else
                     return _context.Session["MUD_USERID"].ToString();
@@ -81,7 +107,7 @@ namespace Webseal
         {
             get
             {
-                if (_context.Session["USER_STRUCTURE"].ToString() == "")
+                if (_context.Session["USER_STRUCTURE"] is null)
                     return null;
                 return _context.Session["USER_STRUCTURE"].ToString();
             }
@@ -92,7 +118,7 @@ namespace Webseal
         {
             get
             {
-                if (_context.Session["USER_PROV"].ToString() == "")
+                if (_context.Session["USER_PROV"] is null)
                     return null;
                 return _context.Session["USER_PROV"].ToString();
             }
@@ -126,7 +152,7 @@ namespace Webseal
         {
             get
             {
-                if (_context.Session["USER_TITLE"].ToString() == "")
+                if (_context.Session["USER_TITLE"] is null)
                     return null;
                 return _context.Session["USER_TITLE"].ToString();
             }
@@ -137,7 +163,7 @@ namespace Webseal
         {
             get
             {
-                if (_context.Session["HAS_PROXIES"].ToString() == "")
+                if (_context.Session["HAS_PROXIES"] is null)
                     return null;
                 return _context.Session["HAS_PROXIES"].ToString() == "1" ? "1" : "";
 
@@ -178,7 +204,7 @@ namespace Webseal
         {
             get
             {
-                if (_context.Session["USER_REGION"].ToString() == "")
+                if (_context.Session["USER_REGION"] is null)
                     return null;
                 return _context.Session["USER_REGION"].ToString();
             }
@@ -193,7 +219,7 @@ namespace Webseal
         {
             get
             {
-                if (_context.Session["UserRegion"].ToString() == "")
+                if (_context.Session["UserRegion"] is null)
                     return null;
                 return _context.Session["USER_BRANCH"].ToString();
             }
@@ -204,7 +230,7 @@ namespace Webseal
         {
             get
             {
-                if (_context.Session["StatusCode"].ToString() == "")
+                if (_context.Session["StatusCode"] is null)
                     return null;
                 return _context.Session["StatusCode"].ToString();
             }
@@ -218,7 +244,7 @@ namespace Webseal
         {
             get
             {
-                if (_context.Session["UserDecryptedValue"].ToString() == "")
+                if (_context.Session["UserDecryptedValue"] is null)
                     return string.Empty;
                 else
                     return _context.Session["UserDecryptedValue"].ToString();

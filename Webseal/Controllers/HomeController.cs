@@ -4,6 +4,8 @@ using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using EncryptionLibrary;
 using Webseal.Util;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Webseal.Controllers
 {
@@ -15,22 +17,23 @@ namespace Webseal.Controllers
     //check decryption
     //change getheader remove segmentation class from string extentions
 
-    [Route("{parm:string}")]
+   // [Route("{parm:string}")]
     public class HomeController : Controller
     {
-      
+
         [HttpGet]
-        public ActionResult Index(string parm)
+        public ViewResult Index()
         {
+            string parm = Properties.Resource.urlParam;
             if (parm == Constants.SessionExpire) //If redirected due to session expired this is a possible 
-                                                //webseal parameter
+                                                 //webseal parameter
             {
                 //landing page action for view Expired
                 //Redirect to:  SearchView(ViewBag.ErrorMsg);
                 ViewBag.Msg = Constants.SessionExpire;
                 //log.Info(ViewBag.Msg);
             }
-            if (!(Webseal.Properties.Resource.ByPassWebSeal == "1")) //If Webseal is not bypassed
+            if (!(Properties.Resource.ByPassWebSeal == "1")) //If Webseal is not bypassed
             {
                 if (!string.IsNullOrEmpty(parm)) //Check that parameter that is passed from webseal != null
                 {
@@ -38,9 +41,9 @@ namespace Webseal.Controllers
                     string paramEncode = Convert.ToBase64String(Encoding.ASCII.GetBytes(parm));
                     string todayDate = "27/03/2018";  //Normally would be DateTime.Now.ToString("dd/MM/yyyy");
 
-                    Crypto urlCrypto = new Crypto();
+                    Crypto urlCrypto = new Crypto(todayDate);
                     SessionUser.UserDecryptedValue = urlCrypto.DecryptAndUrlDecodeStringAES(paramEncode, todayDate);
-                    
+
 
                     string[] paramDecrypted = SessionUser.UserDecryptedValue.Split('|');
 
@@ -103,32 +106,14 @@ namespace Webseal.Controllers
                 SessionUser.UserId = Convert.ToInt32(Webseal.Properties.Resource.domainUser.Substring(1));
                 SessionUser.MudUserId = SessionUser.UserId.ToString().Substring(1).PadLeft(8, '0');
                 SessionUser.UserType = (int)Constants.UserIdType.Internal;
-                
+
             }
 
-            //if (true)
-            //{
-            //    Get the user detail from user types defined.Deleted and recreated in an object oriented way
+            //JsonConvert.DeserializeObject<IDictionary<string, string>>(SessionUser.ConvertToJson())
+            return View();
+    }
 
-            //    SessionUser.UserId
-            //    SessionUser.UserName
-            //    SessionUser.UserRole
-            //    SessionUser.UserTitle
-            //    SessionUser.UserProvince
-            //    SessionUser.UserRegion
-            //    SessionUser.UserBranch
-            //    SessionUser.ProxyId
-            //    SessionUser.UserType
-            //    end service detail
-            //}
-            //else
-            //{
-            //    ViewBag.Msg = "No User Detail";
 
-            //}
-
-            return View(ViewBag.Msg);
-        }
         [HttpGet]
         public ActionResult About()
         {
@@ -143,6 +128,7 @@ namespace Webseal.Controllers
             return View(ViewBag.Msg);
         }
 
-       
+
     }
+  
 }
